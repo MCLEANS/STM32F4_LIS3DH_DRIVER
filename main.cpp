@@ -1,23 +1,33 @@
 #include "stm32f4xx.h"
 #include "clockconfig.h"
+#include "SPI.h"
+
+#define SCK_PIN 5
+#define MOSI_PIN 7
+#define MISO_PIN 6
+
+#define CS_PORT GPIOE
+#define CS_PIN 3
+
+
 
 custom_libraries::clock_config system_clock;
+custom_libraries::_SPI motion_sensor(SPI1,
+                                    GPIOA,
+                                    SCK_PIN,
+                                    MOSI_PIN,
+                                    MISO_PIN,
+                                    16,
+                                    false,
+                                    true,
+                                    false);
 
 int main(void) {
   
   system_clock.initialize();
-  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
-  
-  GPIOA->MODER |= GPIO_MODER_MODER7_0;
-  GPIOA->MODER |= GPIO_MODER_MODER6_0;
 
-  GPIOA->ODR |= GPIO_ODR_ODR_6;
-  GPIOA->ODR &= ~GPIO_ODR_ODR_7;  
 
   while(1){
-    for(volatile int i = 0; i < 2000000; i++){}
-    GPIOA->ODR ^= (1<<6);
-    GPIOA->ODR ^= (1<<7);
 
   }
 }
