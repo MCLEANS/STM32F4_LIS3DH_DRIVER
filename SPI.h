@@ -29,8 +29,8 @@ namespace custom_libraries{
                 bool CPHA,
                 bool CPOL,
                 bool LSBFIRST);
-            void write(char data);
-            char read(char junk);
+            void write(uint16_t data);
+            char read(uint16_t junk);
             ~_SPI();
 
     };

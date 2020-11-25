@@ -6,8 +6,8 @@
 #define MOSI_PIN 7
 #define MISO_PIN 6
 
-#define CS_PORT GPIOD
-#define CS_PIN 13
+#define CS_PORT GPIOE
+#define CS_PIN 3
 
 //MOTION SENSOR COMMANDS
 #define WHO_AM_I 0x0F
@@ -17,7 +17,7 @@
 #define ENABLE_Y_AXIS CTRL_REG1 | 0b00000010
 #define ENABLE_X_AXIS CTRL_REG1 | 0b00000001
 #define CTRL_REG2 0x21
-#define SET_REBOOT_MEMORY CTRL_REG2 | 0b10000000
+#define SET_REBOOT_MEMORY CTRL_REG2 | 0b01000000
 #define RESET_REBOOT_MEMORY (CTRL_REG2 & ~(0b01000000))
 #define STATUS_REG 0x27
 #define OUT_X 0x29
@@ -34,7 +34,7 @@ custom_libraries::_SPI motion_sensor(SPI1,
                                     MOSI_PIN,
                                     MISO_PIN,
                                     16,
-                                    false,
+                                    true,
                                     true,
                                     false);
 void set_cs_pin(){
@@ -50,15 +50,24 @@ int main(void) {
   system_clock.initialize();
   
   //Initialize CHIP SELECT PIN
-  RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
+  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
   //CONFIGURE AS GENERAL PURPOSE OUTPUT 
-  CS_PORT->MODER |= GPIO_MODER_MODER13_0;
+  CS_PORT->MODER |= GPIO_MODER_MODER3_0;
   //SET TO VERY HIGH SPEED
-  //CS_PORT->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3;
+  CS_PORT->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3;
   set_cs_pin();
 
   reset_cs_pin();
-  motion_sensor.read(READ|WHO_AM_I);
+  motion_sensor.write((0x20 << 8)| 0x5F);
+  set_cs_pin();
+
+  reset_cs_pin();
+  motion_sensor.write((0x23 << 8)| 0x08);
+  set_cs_pin();
+ 
+  reset_cs_pin();
+  (void) motion_sensor.read((0x80 | 0x23) << 8);
+  
   set_cs_pin();
 
 
