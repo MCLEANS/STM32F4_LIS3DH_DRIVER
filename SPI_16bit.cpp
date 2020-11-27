@@ -1,6 +1,6 @@
-#include "SPI.h"
+#include "SPI_16bit.h"
 
-namespace custom_libraries{
+namespace custom_libraries_1{
 
     _SPI::_SPI(SPI_TypeDef *SPI_,
                 GPIO_TypeDef *GPIO,

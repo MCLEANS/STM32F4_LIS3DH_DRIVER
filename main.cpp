@@ -1,6 +1,7 @@
 #include "stm32f4xx.h"
 #include "clockconfig.h"
 #include "SPI_16bit.h"
+#include "NOKIA_5110.h"
 
 #define SCK_PIN 5
 #define MOSI_PIN 7
@@ -28,7 +29,7 @@
 
 
 custom_libraries::clock_config system_clock;
-custom_libraries::_SPI motion_sensor(SPI1,
+custom_libraries_1::_SPI motion_sensor(SPI1,
                                     GPIOA,
                                     SCK_PIN,
                                     MOSI_PIN,
@@ -37,6 +38,30 @@ custom_libraries::_SPI motion_sensor(SPI1,
                                     true,
                                     true,
                                     false);
+
+#define NOKIA_RST_PORT GPIOD
+#define NOKIA_RST_PIN 0
+#define NOKIA_CS_PORT GPIOD
+#define NOKIA_CS_PIN 1
+#define NOKIA_DC_PORT GPIOD
+#define NOKIA_DC_PIN 2
+
+custom_libraries::NOKIA_5110 NOKIA(SPI2,
+                                    GPIOB,
+                                    13,
+                                    15,
+                                    14,
+                                    64,
+                                    false,
+                                    false,
+                                    false,
+                                    NOKIA_CS_PORT,
+                                    NOKIA_CS_PIN,
+                                    NOKIA_RST_PORT,
+                                    NOKIA_RST_PIN,
+                                    NOKIA_DC_PORT,
+                                    NOKIA_DC_PIN);
+
 void set_cs_pin(){
   CS_PORT->ODR |= (1 << CS_PIN);
 }
@@ -48,6 +73,9 @@ void reset_cs_pin(){
 int main(void) {
   
   system_clock.initialize();
+  NOKIA.normal_mode();
+
+  NOKIA.print("HELLO WORLD",5,2);
   
   //Initialize CHIP SELECT PIN
   RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;

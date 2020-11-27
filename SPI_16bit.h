@@ -1,9 +1,9 @@
-#ifndef _SPI_H
-#define _SPI_H
+#ifndef _SPI_16bit_H
+#define _SPI_16bit_H
 
 #include "stm32f4xx.h"
 
-namespace custom_libraries{
+namespace custom_libraries_1{
 
     class _SPI{
         private:
@@ -38,4 +38,4 @@ namespace custom_libraries{
 
 
 
-#endif //_SPI_H
+#endif //_SPI_16bit_H
