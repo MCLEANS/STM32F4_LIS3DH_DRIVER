@@ -2,6 +2,7 @@
 #include "clockconfig.h"
 #include "SPI_16bit.h"
 #include "NOKIA_5110.h"
+#include <stdlib.h>
 
 #define SCK_PIN 5
 #define MOSI_PIN 7
@@ -50,7 +51,7 @@ custom_libraries::NOKIA_5110 NOKIA(SPI2,
                                     GPIOB,
                                     13,
                                     15,
-                                    14,
+                                    0,
                                     64,
                                     false,
                                     false,
@@ -70,13 +71,27 @@ void reset_cs_pin(){
   CS_PORT->ODR &= ~(1 << CS_PIN);
 }
 
+uint16_t get_device_ID(){
+  uint16_t device_ID;
+  reset_cs_pin();
+  //Read from the WHO_AM_I register
+  device_ID = motion_sensor.read(((0x80 | WHO_AM_I) << 8));
+  set_cs_pin();
+  //clean up the received ID by removing the higher order 8 bits
+  device_ID &= ~(0xFF << 8);
+
+  return device_ID;
+}
+
+void initialize(){
+
+}
+
 int main(void) {
   
   system_clock.initialize();
-  NOKIA.normal_mode();
+  NOKIA.inverted_mode();
 
-  NOKIA.print("HELLO WORLD",5,2);
-  
   //Initialize CHIP SELECT PIN
   RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
   //CONFIGURE AS GENERAL PURPOSE OUTPUT 
@@ -94,12 +109,12 @@ int main(void) {
   set_cs_pin();
  
   reset_cs_pin();
-  (void) motion_sensor.read((0x80 | 0x23) << 8);
-  
+  uint16_t data = get_device_ID();
   set_cs_pin();
 
-
-
+  char received[4];
+  itoa(data,received,10);
+  NOKIA.print(received,5,2);
 
 
   while(1){

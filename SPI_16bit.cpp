@@ -85,6 +85,8 @@ namespace custom_libraries_1{
 
         //********************CONFIGURE MISO PIN********************
         //SET TO INPUT STATE ALTERNATE FUNCTION
+        GPIO->MODER &= ~(1<<(MISO_PIN*2));
+        GPIO->MODER |= (1<<((MISO_PIN*2)+1));
         //ENABLE SPECIFIC ALTERNATE FUNCTION
         if(MISO_PIN < 8){
             GPIO->AFR[0] |= (5<<(MISO_PIN*4));
@@ -140,11 +142,13 @@ namespace custom_libraries_1{
             SPI_->CR1 &= ~SPI_CR1_LSBFIRST;
         }
 
+     
         //ENABLE SLAVE SELECT OUTPUT
         SPI_->CR2 |= SPI_CR2_SSOE;
 
         //ENABLE ACTUAL SPI
         SPI_->CR1 |= SPI_CR1_SPE;
+
         
      }
 
@@ -154,11 +158,12 @@ namespace custom_libraries_1{
         while(SPI_->SR & SPI_SR_BSY){}
      }
 
-     char _SPI::read(uint16_t junk){
+     uint16_t _SPI::read(uint16_t junk){
+        uint16_t temp  = SPI_->DR;
         SPI_->DR = junk;
-        while(!(SPI_->SR & SPI_SR_TXE)){}
+        while(!(SPI_->SR & SPI_SR_RXNE)){}
         while(SPI_->SR & SPI_SR_BSY){}
-        
+
         return SPI_->DR;
     }
 

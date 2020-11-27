@@ -30,7 +30,7 @@ namespace custom_libraries_1{
                 bool CPOL,
                 bool LSBFIRST);
             void write(uint16_t data);
-            char read(uint16_t junk);
+            uint16_t read(uint16_t junk);
             ~_SPI();
 
     };
