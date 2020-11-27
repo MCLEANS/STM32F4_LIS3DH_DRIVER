@@ -1,6 +1,6 @@
 #include "stm32f4xx.h"
 #include "clockconfig.h"
-#include "SPI.h"
+#include "SPI_16bit.h"
 
 #define SCK_PIN 5
 #define MOSI_PIN 7

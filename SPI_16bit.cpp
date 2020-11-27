@@ -107,6 +107,9 @@ namespace custom_libraries{
         if(this->SPI_PRESCALER == 128) SPI_->CR1 |= SPI_CR1_BR_2 | SPI_CR1_BR_1;
         if(this->SPI_PRESCALER == 256) SPI_->CR1 |= SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0;
 
+       //SET 16 BIT MODE
+       SPI_->CR1 |= SPI_CR1_DFF;
+
         //SET SPI TO MASTER MODE
         SPI_->CR1 |= SPI_CR1_MSTR;
 
@@ -145,13 +148,13 @@ namespace custom_libraries{
         
      }
 
-     void _SPI::write(char data){
+     void _SPI::write(uint16_t data){
         SPI_->DR = data;
         while(!(SPI_->SR & SPI_SR_TXE)){}
         while(SPI_->SR & SPI_SR_BSY){}
      }
 
-     char _SPI::read(char junk){
+     char _SPI::read(uint16_t junk){
         SPI_->DR = junk;
         while(!(SPI_->SR & SPI_SR_TXE)){}
         while(SPI_->SR & SPI_SR_BSY){}
