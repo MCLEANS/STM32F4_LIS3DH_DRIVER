@@ -14,19 +14,19 @@
 //MOTION SENSOR COMMANDS
 #define WHO_AM_I 0x0F
 #define CTRL_REG1 0x20
-#define ACTIVE_MODE CTRL_REG1 | 0b01000000
-#define ENABLE_Z_AXIS CTRL_REG1 | 0b00000100
-#define ENABLE_Y_AXIS CTRL_REG1 | 0b00000010
-#define ENABLE_X_AXIS CTRL_REG1 | 0b00000001
 #define CTRL_REG2 0x21
-#define SET_REBOOT_MEMORY CTRL_REG2 | 0b01000000
-#define RESET_REBOOT_MEMORY (CTRL_REG2 & ~(0b01000000))
+#define CTRL_REG3 0x22
+#define CTRL_REG4 0x23
+#define CTRL_REG5 0x24
 #define STATUS_REG 0x27
-#define OUT_X 0x29
-#define OUT_Y 0x2B
-#define OUT_Z 0X2Z
-#define READ 0b10000000
-#define WRITE 0b00000000
+#define OUT_X_L 0x28
+#define OUT_X_H 0x29
+#define OUT_Y_L 0x2B
+#define OUT_Y_H 0x2B
+#define OUT_Z_L 0X2D
+#define OUT_Z_H 0X2D
+
+uint16_t mydata = 20;
 
 
 custom_libraries::clock_config system_clock;
@@ -84,6 +84,55 @@ uint16_t get_device_ID(){
 }
 
 void initialize(){
+  /**
+   * 1.Set Control register 1 (20h) to High resolution Mode
+   * 2.Enable X,Y and Z axis
+   * 3.Configure data rate to 100Hz
+   */
+  reset_cs_pin();
+  motion_sensor.write((20 << 8)| 0x5F);
+  set_cs_pin();
+
+  /**
+   * 1. Enable High resolution mode in Control register 4 (23h)
+   * 2. Set full scale selection to default (+-2g)
+   */
+  reset_cs_pin();
+  motion_sensor.write((23 << 8)| 0x08);
+  set_cs_pin();
+
+  /**
+   * 1. Reboot memory content in control register 5(24h)
+  
+  reset_cs_pin();
+  motion_sensor.write((CTRL_REG5 << 8)| 0x80);
+  set_cs_pin();
+
+  reset_cs_pin();
+  motion_sensor.write((CTRL_REG5 << 8)| 0x00);
+  set_cs_pin();
+ */
+}
+
+void read_accel_values(){
+  //Read status register
+  reset_cs_pin();
+  uint16_t status_register = motion_sensor.read(((0x80 | 0x0F) << 8));
+  set_cs_pin();
+  status_register &= ~(0xFF << 8);
+  //check if new value is available
+  if(status_register & (1<<3)){
+  //  if(status_register & (1<<7)){
+      //Read X-OUT LOW AND HIGH
+      reset_cs_pin();
+      uint16_t x_out_low = motion_sensor.read(((0x80 | OUT_X_L) << 8));
+      set_cs_pin();
+      x_out_low &= ~(0xFF << 8);
+      uint8_t x_axis_low = x_out_low;
+      mydata = x_axis_low;
+   }
+  //}
+
 
 }
 
@@ -100,6 +149,8 @@ int main(void) {
   CS_PORT->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3;
   set_cs_pin();
 
+  
+
   reset_cs_pin();
   motion_sensor.write((0x20 << 8)| 0x5F);
   set_cs_pin();
@@ -109,15 +160,21 @@ int main(void) {
   set_cs_pin();
  
   reset_cs_pin();
-  uint16_t data = get_device_ID();
+  //Read from the WHO_AM_I register
+  mydata = motion_sensor.read(((0x80 | 0x2D) << 8));
   set_cs_pin();
+  mydata &=  ~(0xFF << 8);
 
-  char received[4];
-  itoa(data,received,10);
-  NOKIA.print(received,5,2);
 
+  
+ // initialize();
 
   while(1){
-
+    //read_accel_values();
+    char received[4];
+    itoa(mydata,received,10);
+    NOKIA.print(received,5,2);
+    for(volatile int i = 0; i < 500000; i++){}
+    NOKIA.clear();
   }
 }
