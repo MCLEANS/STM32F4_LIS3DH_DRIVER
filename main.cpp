@@ -26,7 +26,7 @@
 #define OUT_Z_L 0X2D
 #define OUT_Z_H 0X2D
 
-uint16_t mydata = 20;
+int16_t mydata = 20;
 
 
 custom_libraries::clock_config system_clock;
@@ -152,29 +152,48 @@ int main(void) {
   
 
   reset_cs_pin();
-  motion_sensor.write((0x20 << 8)| 0x5F);
+  motion_sensor.write((0x20 << 8)| 0x57);
   set_cs_pin();
 
   reset_cs_pin();
-  motion_sensor.write((0x23 << 8)| 0x08);
+  motion_sensor.write((0x23 << 8)| 0x00);
   set_cs_pin();
  
-  reset_cs_pin();
-  //Read from the WHO_AM_I register
-  mydata = motion_sensor.read(((0x80 | 0x2D) << 8));
-  set_cs_pin();
-  mydata &=  ~(0xFF << 8);
+  
 
 
   
  // initialize();
 
   while(1){
+    reset_cs_pin();
+  //Read from the WHO_AM_I register
+  mydata = motion_sensor.read(((0x80 | 0x2A) << 8));
+  set_cs_pin();
+  mydata &=  ~(0xFF << 8);
+
+    reset_cs_pin();
+  //Read from the WHO_AM_I register
+  uint16_t mydata1 = motion_sensor.read(((0x80 | 0x2B) << 8));
+  set_cs_pin();
+  uint16_t tempo = mydata1;
+  mydata1 &=  ~(0xFF80);
+
+  mydata |= (mydata1 << 8);
+
+  int32_t mydata2;
+
+  if(tempo & (1 << 7)){
+    mydata = 0-mydata;
+  }
+
+
+
     //read_accel_values();
     char received[4];
     itoa(mydata,received,10);
     NOKIA.print(received,5,2);
-    for(volatile int i = 0; i < 500000; i++){}
+    for(volatile int i = 0; i < 5000000; i++){}
     NOKIA.clear();
   }
 }
