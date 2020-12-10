@@ -87,13 +87,10 @@ int main(void) {
   CS_PORT->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3;
   set_cs_pin();
   
-  //Initialize the sensor
-
   /**
    * Configure Control register 0
    * 1. Initialize the register as indicated in datasheet (This is needed for the sensor to function optimally)
    */
-
   reset_cs_pin();
   motion_sensor.write((0x1E << 8)| 0x10);
   set_cs_pin();
@@ -113,7 +110,6 @@ int main(void) {
    * 2. Spi Interface mode selection (Set to 4-wire).
    * 3. Full scale selected to +-2g
    */
-
   reset_cs_pin();
   motion_sensor.write((0x23 << 8)| 0x00);
   set_cs_pin();
@@ -125,65 +121,76 @@ int main(void) {
   mydata_whoami &=  ~(0xFF << 8);
 
   while(1){
-
   /**
+   * Read the sensor Status Register
+   */
+  reset_cs_pin();
+  uint16_t status_register = motion_sensor.read(((0x80 | 0x2A) << 8));
+  set_cs_pin();
+  status_register &=  ~(0xFF << 8);
+  /**
+   * Check to confirm new data is available from the sensor
+   */
+  if(status_register & (1 <<  3)){
+    /**
    *  read Raw values for the Y-AXIS
    */
+    reset_cs_pin();
+    mydata_y = motion_sensor.read(((0x80 | 0x2A) << 8));
+    set_cs_pin();
+    mydata_y &=  ~(0xFF << 8);
 
-  reset_cs_pin();
-  mydata_y = motion_sensor.read(((0x80 | 0x2A) << 8));
-  set_cs_pin();
-  mydata_y &=  ~(0xFF << 8);
+    reset_cs_pin();
+    uint16_t mydata1_y = motion_sensor.read(((0x80 | 0x2B) << 8));
+    set_cs_pin();
+    uint16_t tempo_y = mydata1_y;
+    mydata1_y &=  ~(0xFF80);
 
-  reset_cs_pin();
-  uint16_t mydata1_y = motion_sensor.read(((0x80 | 0x2B) << 8));
-  set_cs_pin();
-  uint16_t tempo_y = mydata1_y;
-  mydata1_y &=  ~(0xFF80);
-
-  mydata_y |= (mydata1_y << 8);
-  if(tempo_y & (1 << 7)){
-    mydata_y = 0-mydata_y;
-  }
-
-  /**
-   * read Raw data from the X-AXIS
-   **/
-   reset_cs_pin();
-  mydata_x = motion_sensor.read(((0x80 | 0x28) << 8));
-  set_cs_pin();
-  mydata_x &=  ~(0xFF << 8);
-
-  reset_cs_pin();
-  uint16_t mydata1_x = motion_sensor.read(((0x80 | 0x29) << 8));
-  set_cs_pin();
-  uint16_t tempo_x = mydata1_x;
-  mydata1_x &=  ~(0xFF80);
-
-  mydata_x |= (mydata1_x << 8);
-  if(tempo_x & (1 << 7)){
-    mydata_x = 0-mydata_x;
-  }
+    mydata_y |= (mydata1_y << 8);
+    if(tempo_y & (1 << 7)){
+      mydata_y = 0-mydata_y;
+    }
 
     /**
-   * read Raw data from the Z-AXIS
-   **/
-   reset_cs_pin();
-  mydata_z = motion_sensor.read(((0x80 | 0x2C) << 8));
-  set_cs_pin();
-  mydata_z &=  ~(0xFF << 8);
+     * read Raw data from the X-AXIS
+     **/
+    reset_cs_pin();
+    mydata_x = motion_sensor.read(((0x80 | 0x28) << 8));
+    set_cs_pin();
+    mydata_x &=  ~(0xFF << 8);
 
-  reset_cs_pin();
-  uint16_t mydata1_z = motion_sensor.read(((0x80 | 0x2D) << 8));
-  set_cs_pin();
-  uint16_t tempo_z = mydata1_z;
-  mydata1_z &=  ~(0xFF80);
+    reset_cs_pin();
+    uint16_t mydata1_x = motion_sensor.read(((0x80 | 0x29) << 8));
+    set_cs_pin();
+    uint16_t tempo_x = mydata1_x;
+    mydata1_x &=  ~(0xFF80);
 
-  mydata_z |= (mydata1_z << 8);
-  if(tempo_z & (1 << 7)){
-    mydata_z = 0-mydata_z;
+    mydata_x |= (mydata1_x << 8);
+    if(tempo_x & (1 << 7)){
+      mydata_x = 0-mydata_x;
+    }
+
+      /**
+     * read Raw data from the Z-AXIS
+     **/
+    reset_cs_pin();
+    mydata_z = motion_sensor.read(((0x80 | 0x2C) << 8));
+    set_cs_pin();
+    mydata_z &=  ~(0xFF << 8);
+
+    reset_cs_pin();
+    uint16_t mydata1_z = motion_sensor.read(((0x80 | 0x2D) << 8));
+    set_cs_pin();
+    uint16_t tempo_z = mydata1_z;
+    mydata1_z &=  ~(0xFF80);
+
+    mydata_z |= (mydata1_z << 8);
+    if(tempo_z & (1 << 7)){
+      mydata_z = 0-mydata_z;
+    }
   }
 
+  
 
     //read_accel_values();
     char received_y[4];
