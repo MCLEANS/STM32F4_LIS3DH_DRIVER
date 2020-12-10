@@ -175,12 +175,12 @@ int main(void) {
      * read Raw data from the Z-AXIS
      **/
     reset_cs_pin();
-    Z_AXIS_RAW = motion_sensor.read(((0x80 | 0x2C) << 8));
+    Z_AXIS_RAW = motion_sensor.read(((0x80 | 0x2C) << 8)); //Reads low order bits
     set_cs_pin();
     Z_AXIS_RAW &=  ~(0xFF << 8);
 
     reset_cs_pin();
-    uint16_t Z_AXIS_H = motion_sensor.read(((0x80 | 0x2D) << 8));
+    uint16_t Z_AXIS_H = motion_sensor.read(((0x80 | 0x2D) << 8)); //Reads high order bits
     set_cs_pin();
     uint16_t temp_Z_AXIS_H = Z_AXIS_H;
     Z_AXIS_H &=  ~(0xFF80);
@@ -191,7 +191,9 @@ int main(void) {
     }
   }
 
-  
+
+   Y_AXIS_RAW  = (Y_AXIS_RAW*90)/17195;
+   X_AXIS_RAW  = (X_AXIS_RAW*90)/17195;
 
     //read_accel_values();
     char received_y[4];
