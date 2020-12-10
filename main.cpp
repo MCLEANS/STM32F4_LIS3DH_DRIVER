@@ -26,7 +26,9 @@
 #define OUT_Z_L 0X2D
 #define OUT_Z_H 0X2D
 
-int16_t mydata = 20;
+int16_t mydata_x = 20;
+int16_t mydata_y = 20;
+int16_t mydata_z = 20;
 
 
 custom_libraries::clock_config system_clock;
@@ -129,7 +131,7 @@ void read_accel_values(){
       set_cs_pin();
       x_out_low &= ~(0xFF << 8);
       uint8_t x_axis_low = x_out_low;
-      mydata = x_axis_low;
+     
    }
   //}
 
@@ -165,34 +167,89 @@ int main(void) {
   
  // initialize();
 
+
+  //Read from the WHO_AM_I register
+  reset_cs_pin();
+  uint16_t mydata_whoami = motion_sensor.read(((0x80 | 0x0F) << 8));
+  set_cs_pin();
+  mydata_whoami &=  ~(0xFF << 8);
+
   while(1){
-    reset_cs_pin();
-  //Read from the WHO_AM_I register
-  mydata = motion_sensor.read(((0x80 | 0x2A) << 8));
+
+
+  /**
+   *  read Raw values for the Y-AXIS
+   */
+
+  reset_cs_pin();
+  mydata_y = motion_sensor.read(((0x80 | 0x2A) << 8));
   set_cs_pin();
-  mydata &=  ~(0xFF << 8);
+  mydata_y &=  ~(0xFF << 8);
 
-    reset_cs_pin();
-  //Read from the WHO_AM_I register
-  uint16_t mydata1 = motion_sensor.read(((0x80 | 0x2B) << 8));
+  reset_cs_pin();
+  uint16_t mydata1_y = motion_sensor.read(((0x80 | 0x2B) << 8));
   set_cs_pin();
-  uint16_t tempo = mydata1;
-  mydata1 &=  ~(0xFF80);
+  uint16_t tempo_y = mydata1_y;
+  mydata1_y &=  ~(0xFF80);
 
-  mydata |= (mydata1 << 8);
+  mydata_y |= (mydata1_y << 8);
+  if(tempo_y & (1 << 7)){
+    mydata_y = 0-mydata_y;
+  }
 
-  int32_t mydata2;
+  /**
+   * read Raw data from the X-AXIS
+   **/
+   reset_cs_pin();
+  mydata_x = motion_sensor.read(((0x80 | 0x28) << 8));
+  set_cs_pin();
+  mydata_x &=  ~(0xFF << 8);
 
-  if(tempo & (1 << 7)){
-    mydata = 0-mydata;
+  reset_cs_pin();
+  uint16_t mydata1_x = motion_sensor.read(((0x80 | 0x29) << 8));
+  set_cs_pin();
+  uint16_t tempo_x = mydata1_x;
+  mydata1_x &=  ~(0xFF80);
+
+  mydata_x |= (mydata1_x << 8);
+  if(tempo_x & (1 << 7)){
+    mydata_x = 0-mydata_x;
+  }
+
+    /**
+   * read Raw data from the Z-AXIS
+   **/
+   reset_cs_pin();
+  mydata_z = motion_sensor.read(((0x80 | 0x2C) << 8));
+  set_cs_pin();
+  mydata_z &=  ~(0xFF << 8);
+
+  reset_cs_pin();
+  uint16_t mydata1_z = motion_sensor.read(((0x80 | 0x2D) << 8));
+  set_cs_pin();
+  uint16_t tempo_z = mydata1_z;
+  mydata1_z &=  ~(0xFF80);
+
+  mydata_z |= (mydata1_z << 8);
+  if(tempo_z & (1 << 7)){
+    mydata_z = 0-mydata_z;
   }
 
 
-
     //read_accel_values();
-    char received[4];
-    itoa(mydata,received,10);
-    NOKIA.print(received,5,2);
+    char received_y[4];
+    char received_x[4];
+    char received_z[4];
+
+    itoa(mydata_y,received_y,10);
+    NOKIA.print(received_y,5,2);
+
+    itoa(mydata_x,received_x,10);
+    NOKIA.print(received_x,5,1);
+
+    itoa(mydata_z,received_z,10);
+    NOKIA.print(received_z,5,3);
+
     for(volatile int i = 0; i < 5000000; i++){}
     NOKIA.clear();
   }
