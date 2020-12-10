@@ -28,9 +28,9 @@
 
 #define LIS3DH_ID 63
 
-int16_t mydata_x = 20;
-int16_t mydata_y = 20;
-int16_t mydata_z = 20;
+int16_t X_AXIS_RAW = 20;
+int16_t Y_AXIS_RAW = 20;
+int16_t Z_AXIS_RAW = 20;
 
 
 custom_libraries::clock_config system_clock;
@@ -136,57 +136,58 @@ int main(void) {
    *  read Raw values for the Y-AXIS
    */
     reset_cs_pin();
-    mydata_y = motion_sensor.read(((0x80 | 0x2A) << 8));
+    Y_AXIS_RAW = motion_sensor.read(((0x80 | 0x2A) << 8)); //Reads the low order bits
     set_cs_pin();
-    mydata_y &=  ~(0xFF << 8);
+    Y_AXIS_RAW &=  ~(0xFF << 8);
 
     reset_cs_pin();
-    uint16_t mydata1_y = motion_sensor.read(((0x80 | 0x2B) << 8));
+    uint16_t Y_AXIS_H = motion_sensor.read(((0x80 | 0x2B) << 8)); //Reads the high order bits
     set_cs_pin();
-    uint16_t tempo_y = mydata1_y;
-    mydata1_y &=  ~(0xFF80);
+    uint16_t temp_Y_AXIS_H = Y_AXIS_H;
+    Y_AXIS_H &=  ~(0xFF80);
 
-    mydata_y |= (mydata1_y << 8);
-    if(tempo_y & (1 << 7)){
-      mydata_y = 0-mydata_y;
+    Y_AXIS_RAW |= (Y_AXIS_H << 8);
+    if(temp_Y_AXIS_H & (1 << 7)){
+      Y_AXIS_RAW = 0-Y_AXIS_RAW;
     }
 
     /**
      * read Raw data from the X-AXIS
      **/
     reset_cs_pin();
-    mydata_x = motion_sensor.read(((0x80 | 0x28) << 8));
+    X_AXIS_RAW = motion_sensor.read(((0x80 | 0x28) << 8)); //Reads the low order bits
     set_cs_pin();
-    mydata_x &=  ~(0xFF << 8);
+    X_AXIS_RAW &=  ~(0xFF << 8);
 
     reset_cs_pin();
-    uint16_t mydata1_x = motion_sensor.read(((0x80 | 0x29) << 8));
+    uint16_t X_AXIS_H = motion_sensor.read(((0x80 | 0x29) << 8)); //Reads high order bits
     set_cs_pin();
-    uint16_t tempo_x = mydata1_x;
-    mydata1_x &=  ~(0xFF80);
+    uint16_t temp_X_AXIS_H = X_AXIS_H;
+    X_AXIS_H &=  ~(0xFF80);
 
-    mydata_x |= (mydata1_x << 8);
-    if(tempo_x & (1 << 7)){
-      mydata_x = 0-mydata_x;
+    X_AXIS_RAW |= (X_AXIS_H << 8);
+    //Determines the sign of the value
+    if(temp_X_AXIS_H & (1 << 7)){ 
+      X_AXIS_RAW = 0-X_AXIS_RAW;
     }
 
       /**
      * read Raw data from the Z-AXIS
      **/
     reset_cs_pin();
-    mydata_z = motion_sensor.read(((0x80 | 0x2C) << 8));
+    Z_AXIS_RAW = motion_sensor.read(((0x80 | 0x2C) << 8));
     set_cs_pin();
-    mydata_z &=  ~(0xFF << 8);
+    Z_AXIS_RAW &=  ~(0xFF << 8);
 
     reset_cs_pin();
-    uint16_t mydata1_z = motion_sensor.read(((0x80 | 0x2D) << 8));
+    uint16_t Z_AXIS_H = motion_sensor.read(((0x80 | 0x2D) << 8));
     set_cs_pin();
-    uint16_t tempo_z = mydata1_z;
-    mydata1_z &=  ~(0xFF80);
+    uint16_t temp_Z_AXIS_H = Z_AXIS_H;
+    Z_AXIS_H &=  ~(0xFF80);
 
-    mydata_z |= (mydata1_z << 8);
-    if(tempo_z & (1 << 7)){
-      mydata_z = 0-mydata_z;
+    Z_AXIS_RAW |= (Z_AXIS_H << 8);
+    if(temp_Z_AXIS_H & (1 << 7)){
+      Z_AXIS_RAW = 0-Z_AXIS_RAW;
     }
   }
 
@@ -197,13 +198,13 @@ int main(void) {
     char received_x[4];
     char received_z[4];
 
-    itoa(mydata_y,received_y,10);
+    itoa(Y_AXIS_RAW,received_y,10);
     NOKIA.print(received_y,5,2);
 
-    itoa(mydata_x,received_x,10);
+    itoa(X_AXIS_RAW,received_x,10);
     NOKIA.print(received_x,5,1);
 
-    itoa(mydata_z,received_z,10);
+    itoa(Z_AXIS_RAW,received_z,10);
     NOKIA.print(received_z,5,3);
 
     for(volatile int i = 0; i < 5000000; i++){}
