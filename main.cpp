@@ -45,6 +45,9 @@ int16_t X_AXIS_ANGLE_ANTICLOCKWISE = 0;
 bool x_clockwise  = false;
 bool x_anticlockwise = false;
 
+bool y_clockwise  = false;
+bool y_anticlockwise = false;
+
 bool x_in_second_half = false;
 bool x_out_second_half = false;
 
@@ -222,6 +225,16 @@ int main(void) {
     x_clockwise = false;
   }
 
+  if(Y_AXIS_ANGLE > 0){
+    y_clockwise = true;
+    y_anticlockwise = false;
+  } 
+  if(Y_AXIS_ANGLE < 0){
+    Y_AXIS_ANGLE = (180 + Y_AXIS_ANGLE);
+    y_anticlockwise = true;
+    y_clockwise = false;
+  }
+
 
 
     //read_accel_values();
@@ -229,22 +242,40 @@ int main(void) {
     char received_x[4];
     char received_z[4];
 
+    char zero[]= "0";
+
+    itoa(X_AXIS_ANGLE,received_x,10);
+    itoa(Y_AXIS_ANGLE,received_y,10);
+
     //itoa(Y_AXIS_ANGLE,received_y,10);
     //NOKIA.print(received_y,5,2);
 
+    NOKIA.print("CLK",25,0);
+    NOKIA.print("A-CLK",55,0);
+
+    NOKIA.print("X : ",0,2);
+    NOKIA.print("Y : ",0,4);
+
     if(x_clockwise){
-      NOKIA.print("CLOCKWISE",5,3);
-      if((X_AXIS_ANGLE - X_AXIS_ANGLE_PREV) < 0){
-        int16_t x_deficit = 90 - X_AXIS_ANGLE;
-        X_AXIS_ANGLE = x_deficit + 90;
-      }
+      NOKIA.print(received_x,30,2);
+      NOKIA.print(zero,60,2);
     }  
-    if(x_anticlockwise) NOKIA.print("ANTICLOCKWISE",5,3);
+    if(x_anticlockwise){
+      NOKIA.print(received_x,60,2);
+      NOKIA.print(zero,30,2);
+    }
 
-    itoa(X_AXIS_ANGLE,received_x,10);
-    NOKIA.print(received_x,5,2);
+    if(y_clockwise){
+      NOKIA.print(received_y,30,4);
+      NOKIA.print(zero,60,4);
+    }  
+    if(y_anticlockwise){
+      NOKIA.print(received_y,60,4);
+      NOKIA.print(zero,30,4);
+    }
 
-    itoa(Z_AXIS_RAW,received_z,10);
+    
+
    
 
     for(volatile int i = 0; i < 5000000; i++){}
