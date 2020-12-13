@@ -13,6 +13,7 @@
 
 //MOTION SENSOR COMMANDS
 #define WHO_AM_I 0x0F
+#define CTRL_REG0 0x1E
 #define CTRL_REG1 0x20
 #define CTRL_REG2 0x21
 #define CTRL_REG3 0x22
@@ -21,9 +22,9 @@
 #define STATUS_REG 0x27
 #define OUT_X_L 0x28
 #define OUT_X_H 0x29
-#define OUT_Y_L 0x2B
+#define OUT_Y_L 0x2A
 #define OUT_Y_H 0x2B
-#define OUT_Z_L 0X2D
+#define OUT_Z_L 0X2C
 #define OUT_Z_H 0X2D
 
 #define LIS3DH_ID 63
@@ -111,7 +112,7 @@ int main(void) {
    * 1. Initialize the register as indicated in datasheet (This is needed for the sensor to function optimally)
    */
   reset_cs_pin();
-  motion_sensor.write((0x1E << 8)| 0x10);
+  motion_sensor.write((CTRL_REG0 << 8)| 0x10);
   set_cs_pin();
 
   /**
@@ -120,7 +121,7 @@ int main(void) {
    * 2. Set 100Hz sampling rate
    */
   reset_cs_pin();
-  motion_sensor.write((0x20 << 8)| 0x57);
+  motion_sensor.write((CTRL_REG1 << 8)| 0x57);
   set_cs_pin();
 
   /**
@@ -130,12 +131,12 @@ int main(void) {
    * 3. Full scale selected to +-2g
    */
   reset_cs_pin();
-  motion_sensor.write((0x23 << 8)| 0x00);
+  motion_sensor.write((CTRL_REG4 << 8)| 0x00);
   set_cs_pin();
 
   //Read from the WHO_AM_I register
   reset_cs_pin();
-  uint16_t mydata_whoami = motion_sensor.read(((0x80 | 0x0F) << 8));
+  uint16_t mydata_whoami = motion_sensor.read(((0x80 | WHO_AM_I) << 8));
   set_cs_pin();
   mydata_whoami &=  ~(0xFF << 8);
 
@@ -144,7 +145,7 @@ int main(void) {
    * Read the sensor Status Register
    */
   reset_cs_pin();
-  uint16_t status_register = motion_sensor.read(((0x80 | 0x2A) << 8));
+  uint16_t status_register = motion_sensor.read(((0x80 | STATUS_REG) << 8));
   set_cs_pin();
   status_register &=  ~(0xFF << 8);
   /**
@@ -155,12 +156,12 @@ int main(void) {
    *  read Raw values for the Y-AXIS
    */
     reset_cs_pin();
-    Y_AXIS_RAW = motion_sensor.read(((0x80 | 0x2A) << 8)); //Reads the low order bits
+    Y_AXIS_RAW = motion_sensor.read(((0x80 | OUT_Y_L) << 8)); //Reads the low order bits
     set_cs_pin();
     Y_AXIS_RAW &=  ~(0xFF << 8);
 
     reset_cs_pin();
-    uint16_t Y_AXIS_H = motion_sensor.read(((0x80 | 0x2B) << 8)); //Reads the high order bits
+    uint16_t Y_AXIS_H = motion_sensor.read(((0x80 | OUT_Y_H) << 8)); //Reads the high order bits
     set_cs_pin();
     uint16_t temp_Y_AXIS_H = Y_AXIS_H;
     Y_AXIS_H &=  ~(0xFF80);
@@ -174,12 +175,12 @@ int main(void) {
      * read Raw data from the X-AXIS
      **/
     reset_cs_pin();
-    X_AXIS_RAW = motion_sensor.read(((0x80 | 0x28) << 8)); //Reads the low order bits
+    X_AXIS_RAW = motion_sensor.read(((0x80 | OUT_X_L) << 8)); //Reads the low order bits
     set_cs_pin();
     X_AXIS_RAW &=  ~(0xFF << 8);
 
     reset_cs_pin();
-    uint16_t X_AXIS_H = motion_sensor.read(((0x80 | 0x29) << 8)); //Reads high order bits
+    uint16_t X_AXIS_H = motion_sensor.read(((0x80 | OUT_X_H) << 8)); //Reads high order bits
     set_cs_pin();
     uint16_t temp_X_AXIS_H = X_AXIS_H;
     X_AXIS_H &=  ~(0xFF80);
@@ -194,12 +195,12 @@ int main(void) {
      * read Raw data from the Z-AXIS
      **/
     reset_cs_pin();
-    Z_AXIS_RAW = motion_sensor.read(((0x80 | 0x2C) << 8)); //Reads low order bits
+    Z_AXIS_RAW = motion_sensor.read(((0x80 | OUT_Z_L) << 8)); //Reads low order bits
     set_cs_pin();
     Z_AXIS_RAW &=  ~(0xFF << 8);
 
     reset_cs_pin();
-    uint16_t Z_AXIS_H = motion_sensor.read(((0x80 | 0x2D) << 8)); //Reads high order bits
+    uint16_t Z_AXIS_H = motion_sensor.read(((0x80 | OUT_Z_H) << 8)); //Reads high order bits
     set_cs_pin();
     uint16_t temp_Z_AXIS_H = Z_AXIS_H;
     Z_AXIS_H &=  ~(0xFF80);
@@ -240,7 +241,7 @@ int main(void) {
     //read_accel_values();
     char received_y[4];
     char received_x[4];
-    char received_z[4];
+    char received_z[4];  
 
     char zero[]= "0";
 
