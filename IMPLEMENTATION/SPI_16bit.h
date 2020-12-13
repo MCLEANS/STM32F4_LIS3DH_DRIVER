@@ -3,9 +3,9 @@
 
 #include "stm32f4xx.h"
 
-namespace custom_libraries_1{
+namespace custom_libraries{
 
-    class _SPI{
+    class _SPI_16{
         private:
             SPI_TypeDef *SPI_;
             GPIO_TypeDef *GPIO;
@@ -20,7 +20,7 @@ namespace custom_libraries_1{
         private:
         public:
         public:
-            _SPI(SPI_TypeDef *SPI,
+            _SPI_16(SPI_TypeDef *SPI,
                 GPIO_TypeDef *GPIO,
                 uint8_t SCK_PIN,
                 uint8_t MOSI_PIN,
@@ -31,7 +31,7 @@ namespace custom_libraries_1{
                 bool LSBFIRST);
             void write(uint16_t data);
             uint16_t read(uint16_t junk);
-            ~_SPI();
+            ~_SPI_16();
 
     };
 }

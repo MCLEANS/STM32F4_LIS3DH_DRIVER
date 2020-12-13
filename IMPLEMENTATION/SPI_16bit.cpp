@@ -1,8 +1,8 @@
 #include "SPI_16bit.h"
 
-namespace custom_libraries_1{
+namespace custom_libraries{
 
-    _SPI::_SPI(SPI_TypeDef *SPI_,
+    _SPI_16::_SPI_16(SPI_TypeDef *SPI_,
                 GPIO_TypeDef *GPIO,
                 uint8_t SCK_PIN,
                 uint8_t MOSI_PIN,
@@ -152,13 +152,13 @@ namespace custom_libraries_1{
         
      }
 
-     void _SPI::write(uint16_t data){
+     void _SPI_16::write(uint16_t data){
         SPI_->DR = data;
         while(!(SPI_->SR & SPI_SR_TXE)){}
         while(SPI_->SR & SPI_SR_BSY){}
      }
 
-     uint16_t _SPI::read(uint16_t junk){
+     uint16_t _SPI_16::read(uint16_t junk){
         uint16_t temp  = SPI_->DR;
         SPI_->DR = junk;
         while(!(SPI_->SR & SPI_SR_RXNE)){}
@@ -167,7 +167,7 @@ namespace custom_libraries_1{
         return SPI_->DR;
     }
 
-    _SPI::~_SPI(){
+    _SPI_16::~_SPI_16(){
 
 
     }

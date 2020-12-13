@@ -54,7 +54,7 @@ bool x_out_second_half = false;
 
 
 custom_libraries::clock_config system_clock;
-custom_libraries_1::_SPI motion_sensor(SPI1,
+custom_libraries::_SPI_16 motion_sensor(SPI1,
                                     GPIOA,
                                     SCK_PIN,
                                     MOSI_PIN,
