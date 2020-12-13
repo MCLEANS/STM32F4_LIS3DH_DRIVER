@@ -32,6 +32,22 @@ int16_t X_AXIS_RAW = 20;
 int16_t Y_AXIS_RAW = 20;
 int16_t Z_AXIS_RAW = 20;
 
+int16_t Y_AXIS_ANGLE  = 0;
+int16_t X_AXIS_ANGLE = 0;
+
+int16_t X_AXIS_ANGLE_PREV = 0;
+int16_t Y_AXIS_ANGLE_PREV = 0;
+int16_t Z_AXIS_ANGLE_PREV = 0;
+
+int16_t X_AXIS_ANGLE_CLOCKWISE = 0;
+int16_t X_AXIS_ANGLE_ANTICLOCKWISE = 0;
+
+bool x_clockwise  = false;
+bool x_anticlockwise = false;
+
+bool x_in_second_half = false;
+bool x_out_second_half = false;
+
 
 custom_libraries::clock_config system_clock;
 custom_libraries_1::_SPI motion_sensor(SPI1,
@@ -191,23 +207,45 @@ int main(void) {
     }
   }
 
+  Y_AXIS_ANGLE_PREV = Y_AXIS_ANGLE;
+  Y_AXIS_ANGLE  = (Y_AXIS_RAW*90)/17195;
+  X_AXIS_ANGLE_PREV = X_AXIS_ANGLE;
+  X_AXIS_ANGLE = (X_AXIS_RAW*90)/17195;
 
-   Y_AXIS_RAW  = (Y_AXIS_RAW*90)/17195;
-   X_AXIS_RAW  = (X_AXIS_RAW*90)/17195;
+  if(X_AXIS_ANGLE > 0){
+    x_clockwise = true;
+    x_anticlockwise = false;
+  } 
+  if(X_AXIS_ANGLE < 0){
+    X_AXIS_ANGLE = (180 + X_AXIS_ANGLE);
+    x_anticlockwise = true;
+    x_clockwise = false;
+  }
+
+
 
     //read_accel_values();
     char received_y[4];
     char received_x[4];
     char received_z[4];
 
-    itoa(Y_AXIS_RAW,received_y,10);
-    NOKIA.print(received_y,5,2);
+    //itoa(Y_AXIS_ANGLE,received_y,10);
+    //NOKIA.print(received_y,5,2);
 
-    itoa(X_AXIS_RAW,received_x,10);
-    NOKIA.print(received_x,5,1);
+    if(x_clockwise){
+      NOKIA.print("CLOCKWISE",5,3);
+      if((X_AXIS_ANGLE - X_AXIS_ANGLE_PREV) < 0){
+        int16_t x_deficit = 90 - X_AXIS_ANGLE;
+        X_AXIS_ANGLE = x_deficit + 90;
+      }
+    }  
+    if(x_anticlockwise) NOKIA.print("ANTICLOCKWISE",5,3);
+
+    itoa(X_AXIS_ANGLE,received_x,10);
+    NOKIA.print(received_x,5,2);
 
     itoa(Z_AXIS_RAW,received_z,10);
-    NOKIA.print(received_z,5,3);
+   
 
     for(volatile int i = 0; i < 5000000; i++){}
     NOKIA.clear();
