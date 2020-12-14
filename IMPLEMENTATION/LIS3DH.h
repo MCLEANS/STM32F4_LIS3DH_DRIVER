@@ -27,6 +27,11 @@
 
 namespace custom_libraries{
 
+struct Raw_values{
+    int16_t x_axis;
+    int16_t y_axis;
+    int16_t z_axis;
+}
 class LIS3DH : public _SPI_16{
     private:
         GPIO_TypeDef *CS_PORT;
