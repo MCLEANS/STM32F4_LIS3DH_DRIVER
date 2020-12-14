@@ -56,19 +56,18 @@ class LIS3DH : public _SPI_16{
     private:
     public:
     public:
-        LIS3DH(GPIO_TypeDef *CS_PORT,
-                uint8_t CS_PIN,
-                SPI_TypeDef *SPI,
+        LIS3DH(SPI_TypeDef *SPI,
                 GPIO_TypeDef *GPIO,
                 uint8_t SCK_PIN,
                 uint8_t MOSI_PIN,
-                uint8_t MISO_PIN);
+                uint8_t MISO_PIN,
+                GPIO_TypeDef *CS_PORT,
+                uint8_t CS_PIN);
         void set_cs_pin(void);
         void reset_cs_pin(void);
         bool initialize(void);
         Raw_values read_raw_values(void);
         Angle_values read_angles(void);
-
         ~LIS3DH();
 
 };

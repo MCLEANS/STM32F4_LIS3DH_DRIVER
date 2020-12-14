@@ -2,15 +2,13 @@
 
 namespace custom_libraries{
 
-LIS3DH::LIS3DH(GPIO_TypeDef *CS_PORT,
-                uint8_t CS_PIN,
-                SPI_TypeDef *SPI,
+LIS3DH::LIS3DH(SPI_TypeDef *SPI,
                 GPIO_TypeDef *GPIO,
                 uint8_t SCK_PIN,
                 uint8_t MOSI_PIN,
-                uint8_t MISO_PIN):CS_PORT(CS_PORT),
-                                    CS_PIN(CS_PIN),
-                                    _SPI_16(SPI,
+                uint8_t MISO_PIN,
+                GPIO_TypeDef *CS_PORT,
+                uint8_t CS_PIN): _SPI_16(SPI,
                                             GPIO,
                                             SCK_PIN,
                                             MOSI_PIN,
@@ -18,7 +16,9 @@ LIS3DH::LIS3DH(GPIO_TypeDef *CS_PORT,
                                             SPI_PRESCALER,
                                             true,
                                             true,
-                                            false){
+                                            false),
+                                            CS_PORT(CS_PORT),
+                                            CS_PIN(CS_PIN){
     //SET RESET, CHIP SELECT AND DC PIN DIRECTION (OUTPUT)                 
     if(CS_PORT == GPIOA) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
     if(CS_PORT == GPIOB) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
@@ -29,6 +29,7 @@ LIS3DH::LIS3DH(GPIO_TypeDef *CS_PORT,
     if(CS_PORT == GPIOG) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
     if(CS_PORT == GPIOH) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN;
     if(CS_PORT == GPIOI) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOIEN;
+
     //CONFIGURE AS GENERAL PURPOSE OUTPUT 
     this->CS_PORT->MODER |= (1 << (this->CS_PIN*2));
     this->CS_PORT->MODER &= ~(1 << ((this->CS_PIN*2)+1));
@@ -200,7 +201,7 @@ Angle_values LIS3DH::read_angles(void){
 }
 
 LIS3DH::~LIS3DH(){
-    
+
 }
 
 }

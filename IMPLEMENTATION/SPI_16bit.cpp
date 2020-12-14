@@ -159,7 +159,7 @@ namespace custom_libraries{
      }
 
      uint16_t _SPI_16::read(uint16_t junk){
-        uint16_t temp  = SPI_->DR;
+        (void)SPI_->DR;
         SPI_->DR = junk;
         while(!(SPI_->SR & SPI_SR_RXNE)){}
         while(SPI_->SR & SPI_SR_BSY){}
