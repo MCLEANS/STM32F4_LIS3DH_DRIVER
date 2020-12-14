@@ -31,7 +31,15 @@ struct Raw_values{
     int16_t x_axis;
     int16_t y_axis;
     int16_t z_axis;
-}
+};
+
+struct Angle_values{
+    int16_t x_axis;
+    int16_t y_axis;
+    bool x_clockwise;
+    bool y_clockwise;
+};
+
 class LIS3DH : public _SPI_16{
     private:
         GPIO_TypeDef *CS_PORT;
@@ -55,9 +63,11 @@ class LIS3DH : public _SPI_16{
                 uint8_t SCK_PIN,
                 uint8_t MOSI_PIN,
                 uint8_t MISO_PIN);
-        void set_cs_pin();
-        void reset_cs_pin();
-        bool initialize();
+        void set_cs_pin(void);
+        void reset_cs_pin(void);
+        bool initialize(void);
+        Raw_values read_raw_values(void);
+        Angle_values read_angles(void);
 
         ~LIS3DH();
 

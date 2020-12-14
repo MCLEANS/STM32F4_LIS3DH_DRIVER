@@ -81,5 +81,127 @@ bool LIS3DH::initialize(){
     return false;
 }
 
+Raw_values LIS3DH::read_raw_values(void){
+    Raw_values raw_values;
+    /**
+   * Read the sensor Status Register
+   */
+    reset_cs_pin();
+    uint16_t status_register = read(((0x80 | STATUS_REG) << 8));
+    set_cs_pin();
+    status_register &=  ~(0xFF << 8);
+    /**
+     * Check to confirm new data is available from the sensor
+     */
+    if(status_register & (1 <<  3)){
+        /**
+        *  read Raw values for the Y-AXIS
+        */
+        reset_cs_pin();
+        Y_AXIS_RAW = read(((0x80 | OUT_Y_L) << 8)); //Reads the low order bits
+        set_cs_pin();
+        Y_AXIS_RAW &=  ~(0xFF << 8);
+
+        reset_cs_pin();
+        uint16_t Y_AXIS_H = read(((0x80 | OUT_Y_H) << 8)); //Reads the high order bits
+        set_cs_pin();
+        uint16_t temp_Y_AXIS_H = Y_AXIS_H;
+        Y_AXIS_H &=  ~(0xFF80);
+
+        Y_AXIS_RAW |= (Y_AXIS_H << 8);
+        if(temp_Y_AXIS_H & (1 << 7)){
+        Y_AXIS_RAW = 0-Y_AXIS_RAW;
+        }
+
+        /**
+         * read Raw data from the X-AXIS
+         **/
+        reset_cs_pin();
+        X_AXIS_RAW = read(((0x80 | OUT_X_L) << 8)); //Reads the low order bits
+        set_cs_pin();
+        X_AXIS_RAW &=  ~(0xFF << 8);
+
+        reset_cs_pin();
+        uint16_t X_AXIS_H = read(((0x80 | OUT_X_H) << 8)); //Reads high order bits
+        set_cs_pin();
+        uint16_t temp_X_AXIS_H = X_AXIS_H;
+        X_AXIS_H &=  ~(0xFF80);
+
+        X_AXIS_RAW |= (X_AXIS_H << 8);
+        //Determines the sign of the value
+        if(temp_X_AXIS_H & (1 << 7)){ 
+        X_AXIS_RAW = 0-X_AXIS_RAW;
+        }
+
+        /**
+         * read Raw data from the Z-AXIS
+         **/
+        reset_cs_pin();
+        Z_AXIS_RAW = read(((0x80 | OUT_Z_L) << 8)); //Reads low order bits
+        set_cs_pin();
+        Z_AXIS_RAW &=  ~(0xFF << 8);
+
+        reset_cs_pin();
+        uint16_t Z_AXIS_H = read(((0x80 | OUT_Z_H) << 8)); //Reads high order bits
+        set_cs_pin();
+        uint16_t temp_Z_AXIS_H = Z_AXIS_H;
+        Z_AXIS_H &=  ~(0xFF80);
+
+        Z_AXIS_RAW |= (Z_AXIS_H << 8);
+        if(temp_Z_AXIS_H & (1 << 7)){
+        Z_AXIS_RAW = 0-Z_AXIS_RAW;
+        }
+    }
+
+    raw_values.x_axis = X_AXIS_RAW;
+    raw_values.y_axis = Y_AXIS_RAW;
+    raw_values.z_axis = Z_AXIS_RAW;
+    
+    return raw_values;
+}
+
+Angle_values LIS3DH::read_angles(void){
+    Angle_values angle_values;
+
+    Raw_values raw_values;
+    raw_values = read_raw_values();
+
+    Y_AXIS_ANGLE  = (raw_values.y_axis*90)/17195;
+    X_AXIS_ANGLE = (raw_values.x_axis*90)/17195;
+
+    if(X_AXIS_ANGLE > 0){
+        x_clockwise = true;
+        x_anticlockwise = false;
+    } 
+    if(X_AXIS_ANGLE < 0){
+        X_AXIS_ANGLE = (180 + X_AXIS_ANGLE);
+        x_anticlockwise = true;
+        x_clockwise = false;
+    }
+
+    if(Y_AXIS_ANGLE > 0){
+        y_clockwise = true;
+        y_anticlockwise = false;
+    } 
+    if(Y_AXIS_ANGLE < 0){
+        Y_AXIS_ANGLE = (180 + Y_AXIS_ANGLE);
+        y_anticlockwise = true;
+        y_clockwise = false;
+    }
+
+    angle_values.x_axis = X_AXIS_ANGLE;
+    angle_values.y_axis = Y_AXIS_ANGLE;
+    if(x_clockwise) angle_values.x_clockwise = true;
+    if(x_anticlockwise) angle_values.x_clockwise = false;
+    if(y_clockwise) angle_values.y_clockwise = true;
+    if(y_anticlockwise) angle_values.y_clockwise = false;
+
+    return angle_values;
+}
+
+LIS3DH::~LIS3DH(){
+    
+}
+
 }
                                                 
