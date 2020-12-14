@@ -111,7 +111,7 @@ Raw_values LIS3DH::read_raw_values(void){
 
         Y_AXIS_RAW |= (Y_AXIS_H << 8);
         if(temp_Y_AXIS_H & (1 << 7)){
-        Y_AXIS_RAW = 0-Y_AXIS_RAW;
+            Y_AXIS_RAW = 0-Y_AXIS_RAW;
         }
 
         /**
@@ -131,7 +131,7 @@ Raw_values LIS3DH::read_raw_values(void){
         X_AXIS_RAW |= (X_AXIS_H << 8);
         //Determines the sign of the value
         if(temp_X_AXIS_H & (1 << 7)){ 
-        X_AXIS_RAW = 0-X_AXIS_RAW;
+            X_AXIS_RAW = 0-X_AXIS_RAW;
         }
 
         /**
@@ -150,7 +150,7 @@ Raw_values LIS3DH::read_raw_values(void){
 
         Z_AXIS_RAW |= (Z_AXIS_H << 8);
         if(temp_Z_AXIS_H & (1 << 7)){
-        Z_AXIS_RAW = 0-Z_AXIS_RAW;
+            Z_AXIS_RAW = 0-Z_AXIS_RAW;
         }
     }
 
