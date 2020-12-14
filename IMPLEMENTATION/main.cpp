@@ -36,21 +36,13 @@ int16_t Z_AXIS_RAW = 20;
 int16_t Y_AXIS_ANGLE  = 0;
 int16_t X_AXIS_ANGLE = 0;
 
-int16_t X_AXIS_ANGLE_PREV = 0;
-int16_t Y_AXIS_ANGLE_PREV = 0;
-int16_t Z_AXIS_ANGLE_PREV = 0;
 
-int16_t X_AXIS_ANGLE_CLOCKWISE = 0;
-int16_t X_AXIS_ANGLE_ANTICLOCKWISE = 0;
 
 bool x_clockwise  = false;
 bool x_anticlockwise = false;
 
 bool y_clockwise  = false;
 bool y_anticlockwise = false;
-
-bool x_in_second_half = false;
-bool x_out_second_half = false;
 
 
 custom_libraries::clock_config system_clock;
@@ -211,9 +203,7 @@ int main(void) {
     }
   }
 
-  Y_AXIS_ANGLE_PREV = Y_AXIS_ANGLE;
   Y_AXIS_ANGLE  = (Y_AXIS_RAW*90)/17195;
-  X_AXIS_ANGLE_PREV = X_AXIS_ANGLE;
   X_AXIS_ANGLE = (X_AXIS_RAW*90)/17195;
 
   if(X_AXIS_ANGLE > 0){
