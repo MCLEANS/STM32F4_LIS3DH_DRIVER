@@ -3,6 +3,8 @@
 
 #include "SPI_16bit.h"
 
+#define SPI_PRESCALER 16
+
 /**
  * LIS3DH REGISTERS
  */
@@ -24,13 +26,38 @@
 #define LIS3DH_ID 63
 
 namespace custom_libraries{
-    class LIS3DH : public _SPI_16{
-    private:
-    private:
-    public:
-    public:
 
-    };
+class LIS3DH : public _SPI_16{
+    private:
+        GPIO_TypeDef *CS_PORT;
+        uint8_t CS_PIN;
+        int16_t X_AXIS_RAW = 0;
+        int16_t Y_AXIS_RAW = 0;
+        int16_t Z_AXIS_RAW = 0;
+        int16_t X_AXIS_ANGLE = 0;
+        int16_t Y_AXIS_ANGLE = 0;
+        bool x_clockwise = false;
+        bool x_anticlockwise = false;
+        bool y_clockwise = false;
+        bool y_anticlockwise = false;   
+    private:
+    public:
+    public:
+        LIS3DH(GPIO_TypeDef *CS_PORT,
+                uint8_t CS_PIN,
+                SPI_TypeDef *SPI,
+                GPIO_TypeDef *GPIO,
+                uint8_t SCK_PIN,
+                uint8_t MOSI_PIN,
+                uint8_t MISO_PIN);
+        void set_cs_pin();
+        void reset_cs_pin();
+        bool initialize();
+
+        ~LIS3DH();
+
+};
+
 }
 
 
