@@ -54,6 +54,8 @@ class LIS3DH : public _SPI_16{
         bool y_clockwise = false;
         bool y_anticlockwise = false;   
     private:
+        void set_cs_pin(void);
+        void reset_cs_pin(void);
     public:
     public:
         LIS3DH(SPI_TypeDef *SPI,
@@ -63,8 +65,6 @@ class LIS3DH : public _SPI_16{
                 uint8_t MISO_PIN,
                 GPIO_TypeDef *CS_PORT,
                 uint8_t CS_PIN);
-        void set_cs_pin(void);
-        void reset_cs_pin(void);
         bool initialize(void);
         Raw_values read_raw_values(void);
         Angle_values read_angles(void);
